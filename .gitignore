@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+venv/
+.venv/
+
+# Секреты и переменные окружения
+.env
+.env.*
+!.env.example
+
+# Kafka / Debezium / Kafka Connect
+kafka-data/
+zookeeper-data/
+connect-data/
+*.offsets
+
+# PostgreSQL
+postgres-data/
+pgdata/
+
+# ClickHouse
+clickhouse-data/
+
+# Docker
+docker-compose.override.yml
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Логи и временные файлы
+*.log
+*.tmp
+logs/
