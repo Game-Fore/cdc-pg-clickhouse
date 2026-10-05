@@ -1,0 +1,4 @@
+psycopg[binary]==3.2.*
+faker
+confluent-kafka
+clickhouse-connect
