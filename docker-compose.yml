@@ -87,3 +87,28 @@ services:
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
       KAFKA_CLUSTERS_0_KAFKACONNECT_0_NAME: debezium
       KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS: http://connect:8083
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:25.8
+    container_name: clickhouse
+    environment:
+      CLICKHOUSE_DB: shop
+      CLICKHOUSE_USER: shop
+      CLICKHOUSE_PASSWORD: shop
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
+
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+
+    volumes:
+      - ./clickhouse/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    healthcheck:
+      test: ["CMD", "clickhouse-client", "--user", "shop", "--password", "shop", "-q", "SELECT 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
