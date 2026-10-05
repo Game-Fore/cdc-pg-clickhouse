@@ -13,7 +13,6 @@ venv/
 
 # Kafka / Debezium / Kafka Connect
 kafka-data/
-zookeeper-data/
 connect-data/
 *.offsets
 
@@ -39,3 +38,10 @@ Thumbs.db
 *.log
 *.tmp
 logs/
+
+
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+*.egg-info/
+desktop.ini
