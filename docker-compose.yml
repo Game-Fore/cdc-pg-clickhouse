@@ -96,11 +96,9 @@ services:
       CLICKHOUSE_USER: shop
       CLICKHOUSE_PASSWORD: shop
       CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
-
     ports:
       - "8123:8123"
       - "9000:9000"
-
     volumes:
       - ./clickhouse/init.sql:/docker-entrypoint-initdb.d/init.sql
     ulimits:
@@ -113,8 +111,19 @@ services:
       timeout: 5s
       retries: 10
 
-
   grafana:
     image: grafana/grafana:12.1.0
-    container-name: grafana
-    depends_on: grafana
+    container_name: grafana
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    environment:
+      GF_PLUGINS_PREINSTALL_SYNC: grafana-clickhouse-datasource
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+      GF_DASHBOARDS_MIN_REFRESH_INTERVAL: 1s
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
