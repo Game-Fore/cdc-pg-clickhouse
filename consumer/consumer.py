@@ -3,7 +3,8 @@ import logging
 import signal
 import time
 import clickhouse_connect
-
+import argparse
+import os
 
 
 from datetime import datetime, timezone
@@ -95,6 +96,12 @@ def flush(ch, buffers: dict) -> int:
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--crash-after-flush", type=int, default=0,
+                        help="упасть после N-го flush, до коммита offset'ов (тест отказа)")
+    args = parser.parse_args()
+    log.info("pid=%d", os.getpid())
+    flushes = 0
     consumer = Consumer(KAFKA_CONF)
     consumer.subscribe(list(TABLES))
     ch = clickhouse_connect.get_client(**CH_CONF)
@@ -129,7 +136,11 @@ def main():
 
             if pending >= BATCH_SIZE or (pending and time.monotonic() - last_flush >= FLUSH_INTERVAL_SEC):
                 n = flush(ch, buffers)
-                consumer.commit(asynchronous=False)  # коммит только после успешной вставки
+                flushes += 1
+                if args.crash_after_flush and flushes >= args.crash_after_flush:
+                    log.warning("simulating crash after flush #%d: data inserted, offsets NOT committed", flushes)
+                    os._exit(1)  # мгновенный выход без finally и без commit
+                consumer.commit(asynchronous=False)
                 log.info("flushed %d rows", n)
                 pending = 0
                 last_flush = time.monotonic()
